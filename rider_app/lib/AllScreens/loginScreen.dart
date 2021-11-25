@@ -1,9 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:rider_app/AllScreens/mainscreen.dart';
 import 'package:rider_app/AllScreens/registrationScreen.dart';
+import 'package:rider_app/main.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+
   static const String idScreen = "login";
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController emailtextEditingController= TextEditingController();
+
+  TextEditingController passwordtextEditingController= TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,6 +46,7 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: 1.0,),
                   TextField(
+                    controller: emailtextEditingController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: "Email",
@@ -48,6 +63,7 @@ class LoginScreen extends StatelessWidget {
 
                   SizedBox(height: 1.0,),
                   TextField(
+                    controller: passwordtextEditingController,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Password",
@@ -66,9 +82,20 @@ class LoginScreen extends StatelessWidget {
                   RaisedButton(
                     color: Colors.yellow,
                     textColor: Colors.white,
-                    onPressed: (){
-                    print("logged");
-                  }, child: Container(
+                    onPressed: ()
+                    {
+                      if(!emailtextEditingController.text.contains("@")){
+                        displayToastMassage("Email address is not Valid.", context);
+                      }
+                      else if(passwordtextEditingController.text.isEmpty){
+                        displayToastMassage("Password is mandatory.", context);
+                      }
+                      else{
+                        loginAndAuthUser(context);
+                      }
+
+                  },
+                    child: Container(
                     height: 50.0,
                     child: Center(
                       child: Text(
@@ -96,5 +123,42 @@ class LoginScreen extends StatelessWidget {
       ),
     );
 
+  }
+
+  final FirebaseAuth _firebaseAuth =FirebaseAuth.instance;
+
+  void loginAndAuthUser(BuildContext context) async
+  {
+    final User? firebaseUser = (await _firebaseAuth.
+    signInWithEmailAndPassword(
+    email: emailtextEditingController.text,
+    password: passwordtextEditingController.text
+    ).catchError((errMsg){
+      displayToastMassage("Error : " + errMsg, context);
+    })).user;
+
+    if(firebaseUser!=null) //User Created
+        {
+      userRef.child(firebaseUser.uid).once().then((DataSnapshot snap){
+        if(snap.value!=null)
+        {
+          Navigator.pushNamedAndRemoveUntil(context, MainScreen.idScreen, (route) => false);
+          displayToastMassage("You are logged-in now!!", context);
+        }
+        else
+          {
+            _firebaseAuth.signOut();
+            displayToastMassage("No records exists for this user. Please create new account", context);
+          }
+      });
+
+
+
+    }
+    else
+    {
+      //error occured - display error msg
+      displayToastMassage("Error occured!! cannot be sign in", context);
+    }
   }
 }
