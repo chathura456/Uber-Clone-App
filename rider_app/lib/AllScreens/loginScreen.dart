@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:rider_app/AllScreens/mainscreen.dart';
 import 'package:rider_app/AllScreens/registrationScreen.dart';
+import 'package:rider_app/AllWidgets/progessDialog.dart';
 import 'package:rider_app/main.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -129,11 +130,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void loginAndAuthUser(BuildContext context) async
   {
+    showDialog(context: context,
+        builder: (BuildContext context){
+      return ProgessDialog(message: "Authenticating, Please wait...",);
+        },);
     final User? firebaseUser = (await _firebaseAuth.
     signInWithEmailAndPassword(
     email: emailtextEditingController.text,
     password: passwordtextEditingController.text
     ).catchError((errMsg){
+      Navigator.pop(context);
       displayToastMassage("Error : " + errMsg, context);
     })).user;
 
@@ -147,6 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         else
           {
+            Navigator.pop(context);
             _firebaseAuth.signOut();
             displayToastMassage("No records exists for this user. Please create new account", context);
           }
@@ -158,6 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
     else
     {
       //error occured - display error msg
+      Navigator.pop(context);
       displayToastMassage("Error occured!! cannot be sign in", context);
     }
   }

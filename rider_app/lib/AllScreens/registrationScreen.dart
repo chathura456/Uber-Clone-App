@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rider_app/AllScreens/loginScreen.dart';
 import 'package:rider_app/AllScreens/mainscreen.dart';
+import 'package:rider_app/AllWidgets/progessDialog.dart';
 import 'package:rider_app/main.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -175,11 +176,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void registerNewUser(BuildContext context) async
   {
+    showDialog(context: context,
+      builder: (BuildContext context){
+        return ProgessDialog(message: "registering, Please wait...",);
+      },);
+
     final User? firebaseUser = (await _firebaseAuth.
     createUserWithEmailAndPassword(
         email: emailtextEditingController.text,
         password: passwordtextEditingController.text
     ).catchError((errMsg){
+      Navigator.pop(context);
       displayToastMassage("Error : " + errMsg, context);
     })).user;
 
@@ -200,6 +207,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
     else
       {
+        Navigator.pop(context);
         //error occured - display error msg
         displayToastMassage("New User Accounthas not been created", context);
       }
