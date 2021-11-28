@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rider_app/AllWidgets/divider.dart';
+import 'package:rider_app/Assistants/assistantMethods.dart';
 
 
 
@@ -35,6 +36,9 @@ class _MainScreenState extends State<MainScreen> {
 
     CameraPosition  cameraPosition = new CameraPosition(target: latLngPosition,zoom: 14);
     newGoogleMapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    String address = await AssistantMethods.searchCoordinateAddress(position);
+    print("This is your Address :: " + address);
   }
 
 
