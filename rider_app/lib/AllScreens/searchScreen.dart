@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rider_app/Assistants/requestAssistant.dart';
 import 'package:rider_app/DataHandler/appData.dart';
+import 'package:rider_app/configMaps.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -107,6 +109,10 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(3.0),
                               child: TextField(
+                                onChanged: (val)
+                                {
+                                  findPlce(val);
+                                },
                                 controller: dropfftextEditingController,
                                 decoration: InputDecoration(
                                   hintText: "Where to?",
@@ -129,5 +135,22 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> findPlce(String placeName) async {
+    if(placeName.length>1)
+      {
+        String autoCompleteUrl="https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&key=$mapkey&sessiontoken=1234567890&components=country:lk";
+
+        var res = await RequestAssistant.getRequest(Uri.parse(autoCompleteUrl));
+
+        if(res == "failed")
+          {
+            return;
+          }
+
+        print("Place Predection Response :: ");
+        print(res);
+      }
   }
 }
